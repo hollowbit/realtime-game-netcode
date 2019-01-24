@@ -12,6 +12,8 @@ class NetworkManager {
         ws.on('message', (message) => {
             onMessage(ws, message);
         })
+
+        ws.on('close', ())
     }
 
     onMessage = (ws, message) => {

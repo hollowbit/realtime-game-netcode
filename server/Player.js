@@ -7,19 +7,6 @@ class PlayerManager {
         setInterval(update, 1000 / PLAYER_COMMAND_UPDATE_RATE);
     }
 
-    // give a command to be handled later
-    giveCommand = (command) => {
-        var player = this.players.get(command.player);
-
-        // if the player doesn't exist, create a new one
-        if (player == null) {
-            player = createPlayer(command.player);
-        }
-
-        // apply the command on the player
-        player.applyCommand(command);
-    }
-
     // create a new player and return it
     createPlayer = (name) => {
         const player = new Player(command.player);
@@ -37,10 +24,24 @@ class PlayerManager {
 
 class Player {
 
-    constructor(name) {
+    constructor(name, commandRate) {
         this.name = name;
         this.x = 50;
         this.y = 50;
+        this.commandRate = commandRate;
+        this.commands = [];
+
+        // set update loop to apply commands
+        setInterval(update, 1000 / commandRate);
+    }
+
+    update = () => {
+        // get next command and apply it
+        const command = this.commands[0];
+        this.commands.splice(0, 1); // remove next commands
+
+        
+
     }
 
     applyCommand = (command) => {
