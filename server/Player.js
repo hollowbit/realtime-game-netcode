@@ -2,9 +2,6 @@ class PlayerManager {
 
     constructor() {
         this.players = new Map();
-
-        // set thread to update players
-        setInterval(update, 1000 / PLAYER_COMMAND_UPDATE_RATE);
     }
 
     // create a new player and return it
@@ -12,6 +9,11 @@ class PlayerManager {
         const player = new Player(command.player);
         this.players.set(command.player, player);
         return player;
+    }
+
+    removePlayer = (name) => {
+        this.players.get(name)._remove();
+        this.players.delete(name);
     }
 
     generatePackets = (callbackEach) => {
@@ -32,7 +34,7 @@ class Player {
         this.commands = [];
 
         // set update loop to apply commands
-        setInterval(update, 1000 / commandRate);
+        this.updateThread = setInterval(update, 1000 / commandRate);
     }
 
     update = () => {
@@ -45,7 +47,7 @@ class Player {
     }
 
     applyCommand = (command) => {
-        // TODO apply command with lag compensation
+        this,commands.push(command);
     }
 
     generatePacket = () => {
@@ -53,6 +55,10 @@ class Player {
             x: this.x,
             y: this.y
         };
+    }
+
+    _remove = () => {
+        clearInterval(this.updateThread);
     }
 
 }

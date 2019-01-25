@@ -8,25 +8,26 @@ class NetworkManager {
     }
 
     onConnect = (ws) => {
+        const connection = new Connection(ws);
+
         // set listener for receiving each client's messages
         ws.on('message', (message) => {
-            onMessage(ws, message);
-        })
+            var packet;
 
-        ws.on('close', ())
-    }
+            // parse message
+            try {
+                packet = JSON.parse(message);
+            } catch(e) {
+                return;// jsut return if invalid json
+            }
+            
+            // send packet to connection
+            connection.onMessage(packet);
+        });
 
-    onMessage = (ws, message) => {
-        var packet = null;
-        try {
-            JSON.parse(message);
-        } catch (ex) {/* Ignore if cannot parse */}
-
-        switch(packet.type) {
-            case "command":
-                
-                break;
-        }
+        ws.on('close', () => {
+            connection.remove();
+        });
     }
 
 }

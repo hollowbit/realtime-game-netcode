@@ -15,6 +15,9 @@ class Connection {
                 _connect(packet);
                 break;
             case 'command':
+                if (hasPlayer()) {
+                    this.player.applyCommand(packet.command);
+                }
                 break;
         }
     }
@@ -36,6 +39,12 @@ class Connection {
             'commandRate' in packet) {
             
             this.player = PlayerManager.createPlayer(packet.playerName, packet.commandRate);
+        }
+    }
+
+    remove = () => {
+        if (hasPlayer()) {
+            PlayerManager.removePlayer(player.name);
         }
     }
 
