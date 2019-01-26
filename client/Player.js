@@ -1,25 +1,40 @@
-import { CommandManager } from "./CommandManager";
+import CommandManager from "./CommandManager.js";
+import { WORLD_WIDTH, WORLD_HEIGHT } from "./World.js";
 
 const PLAYER_SIZE = 50;
-const PLAYER_SPEED = 50;
+const PLAYER_SPEED = 250;
 
-class Player {
+export default class Player {
 
     constructor(name, commandRate) {
         this.name = name;
+
         this.x = 50;
         this.y = 50;
+        this.dt = 1 / commandRate;
 
         this.commandManager = new CommandManager((command) => { this.runCommand(command); }, (snapshot) => { this.setWithSnapshot(snapshot); }, commandRate);
     }
 
+    connect() {
+        const connectPacket = {
+            type: 'connect',
+            playerName: this.name,
+            commandRate: this.commandManager.commandRate
+        }
+
+        // now that we are connected, start the command manager
+        this.commandManager.start();
+        return connectPacket;
+    }
+
     runCommand(command) {
         if (command.up) {
-            this.y += PLAYER_SPEED * this.dt;
+            this.y -= PLAYER_SPEED * this.dt;
         }
 
         if (command.down) {
-            this.y -= PLAYER_SPEED * this.dt;
+            this.y += PLAYER_SPEED * this.dt;
         }
         
         if (command.right) {
@@ -33,12 +48,13 @@ class Player {
         //TODO using world snapshots, check with collisions on other players at this timestamp
 
         // check for collisions with world
-        if (this.x + PLAYER_SIZE >= WORLD_WIDTH) {
-            this.x = WORLD_WIDTH - PLAYER_SIZE - 1;
+        
+        if (this.x + PLAYER_SIZE > WORLD_WIDTH) {
+            this.x = WORLD_WIDTH - PLAYER_SIZE;
         }
 
-        if (this.y + PLAYER_SIZE >= WORLD_HEIGHT) {
-            this.y = WORLD_HEIGHT - PLAYER_SIZE - 1;
+        if (this.y + PLAYER_SIZE > WORLD_HEIGHT) {
+            this.y = WORLD_HEIGHT - PLAYER_SIZE;
         }
 
         if (this.x < 0) {
@@ -55,8 +71,17 @@ class Player {
         this.y = snapshot.y;
     }
 
-    render(ctx) {
-        
+    generateSnapshot() {
+        return {
+            x: this.x,
+            y: this.y,
+            type: 'Player'
+        }
     }
 
+}
+
+Player.propertiesInterpolatable = ['x', 'y'];
+Player.render = (renderer, snapshot) => {
+    renderer.drawSquare(snapshot.x, snapshot.y, PLAYER_SIZE, 'red');
 }

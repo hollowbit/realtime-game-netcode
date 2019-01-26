@@ -9,7 +9,7 @@ class Connection {
 
         // ask client to connect
         this.connectRequestTime = + new Date();
-        sendPacket({type: 'pleaseconnect'});
+        this.sendPacket({type: 'pleaseconnect'});
     }
 
     /**

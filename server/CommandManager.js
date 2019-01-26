@@ -8,8 +8,7 @@ class CommandManager {
         this.connection = connection;
 
         this.commands = [];
-        this.dt = 1 / commandRate;
-        this.commandReceived = 0;
+        this.commandsReceived = 0;
 
         // set update loop to apply commands
         this.updateThread = setInterval(() => { this._update(); }, 1000 / commandRate);
@@ -17,8 +16,7 @@ class CommandManager {
 
     giveCommand(command) {
         // calculate estimated creation time of command
-        command.time = this.commandStartTime + ((1000 / commandRate) * this.commandReceived);
-        this.commandReceived++;
+        command.time = this.commandStartTime + ((1000 / this.commandRate) * ++this.commandsReceived);
 
         this.commands.push(command);
     }
@@ -37,7 +35,7 @@ class CommandManager {
         this.commandRunner(command);
 
         // send the response packet
-        connection.sendPacket({
+        this.connection.sendPacket({
             type: 'commandresponse',
             response: {
                 id: command.id,

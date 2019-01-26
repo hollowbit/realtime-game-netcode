@@ -1,7 +1,5 @@
 const { PlayerManager } = require('./Player');
 
-const WORLD_WIDTH = 640;
-const WORLD_HEIGHT = 480;
 const SIMULATION_RATE = 20;
 
 class World {
@@ -20,14 +18,14 @@ class World {
         });
 
         const packet = {
-            timestamp: + new Date(),
+            type: 'snapshot',
+            time: + new Date(),
             snapshots
         }
 
         PlayerManager.forEach((player) => {
             player.connection.sendPacket(packet);
         });
-        console.log('Created Packet: ' + JSON.stringify(packet));
     }
 
 }

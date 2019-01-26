@@ -1,10 +1,12 @@
+import Client from "./client.js";
+
 class NetworkManager {
 
     constructor(address, port) {
         this.ws = new WebSocket(`ws://${address}:${port}`, "protocolOne");
-        this.ws.onopen((e) => { this.onOpen(e); });
-        this.ws.onclose((e) => { this.onClose(e); });
-        this.ws.onmessage((e) => { this.onMessage(e); });
+        this.ws.onopen = (e) => { this.onOpen(e); };
+        this.ws.onclose = (e) => { this.onClose(e); };
+        this.ws.onmessage = (e) => { this.onMessage(e); };
     }
 
     onOpen(event) {
@@ -23,7 +25,19 @@ class NetworkManager {
             return;// ignore invalid packets
         }
 
-        //TODO handle packet
+        // handle packets based on type
+        switch(packet.type) {
+            case 'commandresponse':
+                Client.world.player.commandManager.onCommandResponse(packet.response);
+                break;
+            case 'snapshot':
+                Client.world.giveSnapshot(packet);
+                break;
+            case 'pleaseconnect':
+                // create a connection
+                this.sendPacket(Client.world.player.connect());
+                break;
+        }
     }
 
     sendPacket(packet) {
@@ -32,4 +46,4 @@ class NetworkManager {
     
 }
 
-module.exports.NetworkManager = NetworkManager;
+export default NetworkManager;

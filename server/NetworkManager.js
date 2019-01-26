@@ -22,7 +22,6 @@ class NetworkManager {
             } catch(e) {
                 return;// jsut return if invalid json
             }
-            console.log("message: " + message)
             
             // send packet to connection
             connection.onMessage(packet);

@@ -1,4 +1,4 @@
-const NetworkManager = require('./client').NetworkManager;
+import Client from './client.js'; 
 
 class CommandManager {
 
@@ -13,21 +13,23 @@ class CommandManager {
         // key a log of all commands
         this.commandLog = [];
 
-        // start thread to generate commands
-        setInterval(() => { this._update(); }, 1000 / commandRate);
-
         // initialize key values and listeners
         this.keys = { up: false, left: false, down: false, right: false };
-        window.onkeyup = (e) => { _onKeyUp(e.keyCode); };
-        window.onkeydown = (e) => { _onKeyDown(e.keyCode); };
+        window.onkeyup = (e) => { this._onKeyUp(e.keyCode); };
+        window.onkeydown = (e) => { this._onKeyDown(e.keyCode); };
+    }
+
+    // start thread to generate commands
+    start() {
+        setInterval(() => { this._update(); }, 1000 / this.commandRate);
     }
 
     _onKeyUp(keyCode) {
-        _setKey(keyCode, false);
+        this._setKey(keyCode, false);
     }
 
     _onKeyDown(keyCode) {
-        _setKey(keyCode, true);
+        this._setKey(keyCode, true);
     }
 
     _setKey(keyCode, value) {
@@ -43,11 +45,11 @@ class CommandManager {
         const command = {
             id: this.lastId++,
             clientTime: + new Date(),
-            ...keys
+            ...this.keys
         };
 
         this.commandRunner(command);
-        NetworkManager.sendPacket({type: 'command', command});
+        Client.networkManager.sendPacket({type: 'command', command});
         this.commandLog.push(command);
     }
 
@@ -57,7 +59,7 @@ class CommandManager {
      */
     onCommandResponse(response) {
         // set position to match server
-        positionSetter(response.snapshot);
+        this.positionSetter(response.snapshot);
 
         // get command with id
         var id = this.commandLog.findIndex(command => command.id == response.id);
@@ -73,4 +75,4 @@ class CommandManager {
 
 }
 
-module.exports.CommandManager = CommandManager;
+export default CommandManager;
