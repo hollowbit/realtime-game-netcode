@@ -10,7 +10,7 @@ class World {
         setInterval(() => { this.update(); }, 1000 / SIMULATION_RATE);
     }
 
-    update(_this) {
+    update() {
         // If we had entities, we would update them here
 
         // Create world snapshot and send it to all players
@@ -24,11 +24,10 @@ class World {
             snapshots
         }
 
-        console.log('Created Packet: ' + JSON.stringify(packet));
-
         PlayerManager.forEach((player) => {
             player.connection.sendPacket(packet);
         });
+        console.log('Created Packet: ' + JSON.stringify(packet));
     }
 
 }

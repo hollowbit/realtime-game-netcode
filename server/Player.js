@@ -1,3 +1,5 @@
+const { CommandManager } = require('./CommandManager');
+
 const PLAYER_SIZE = 50;
 const PLAYER_SPEED = 50;
 
@@ -8,8 +10,8 @@ class PlayerManager {
     }
 
     // create a new player and return it
-    createPlayer(connection, name, commandRate) {
-        const player = new Player(connection, name, commandRate);
+    createPlayer(connection, name, commandRate, commandStartTime) {
+        const player = new Player(connection, name, commandRate, commandStartTime);
         this.players.set(name, player);
         return player;
     }
@@ -33,29 +35,16 @@ class PlayerManager {
 
 class Player {
 
-    constructor(connection, name, commandRate) {
+    constructor(connection, name, commandRate, commandStartTime) {
         this.connection = connection;
         this.name = name;
         this.x = 50;
         this.y = 50;
-        this.commandRate = commandRate;
-        this.commands = [];
-        this.dt = 1 / commandRate;
 
-        // set update loop to apply commands
-        this.updateThread = setInterval(() => { this.update(); }, 1000 / commandRate);
+        this.commandManager = new CommandManager((command) => { this.runCommand(command); } , () => { return this.generateSnapshot(); }, commandRate, commandStartTime);
     }
 
-    update() {
-        // don't bother if there are no commands
-        if (this.commands.length == 0) {
-            return;
-        }
-
-        // get next command and apply it
-        const command = this.commands[0];
-        this.commands.splice(0, 1); // remove next commands
-
+    runCommand(command) {
         if (command.up) {
             this.y += PLAYER_SPEED * this.dt;
         }
@@ -92,19 +81,16 @@ class Player {
         }
     }
 
-    applyCommand(command) {
-        this,commands.push(command);
-    }
-
     generateSnapshot() {
         return {
+            type: 'Player',
             x: this.x,
             y: this.y
         };
     }
 
     remove() {
-        clearInterval(this.updateThread);
+        this.commandManager.remove();
     }
 
 }

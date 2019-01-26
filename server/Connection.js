@@ -6,6 +6,10 @@ class Connection {
     constructor(ws) {
         this.ws = ws;
         this.player = null;
+
+        // ask client to connect
+        this.connectRequestTime = + new Date();
+        sendPacket({type: 'pleaseconnect'});
     }
 
     /**
@@ -19,7 +23,7 @@ class Connection {
                 break;
             case 'command':
                 if (this.hasPlayer()) {
-                    this.player.applyCommand(packet.command);
+                    this.player.commandManager.giveCommand(packet.command);
                 }
                 break;
         }
@@ -41,7 +45,11 @@ class Connection {
         if ('playerName' in packet &&
             'commandRate' in packet) {
             
-            this.player = PlayerManager.createPlayer(this, packet.playerName, packet.commandRate);
+            // determine when the client sent the connection request
+            const ping = ((+ new Date()) - this.connectRequestTime);
+            const commandStartTime = ping / 2 + this.connectRequestTime;
+            
+            this.player = PlayerManager.createPlayer(this, packet.playerName, packet.commandRate, commandStartTime);
             console.log("Player connected: " + this.player.name);
         }
     }
