@@ -8,7 +8,6 @@ class Connection {
         this.player = null;
 
         // ask client to connect
-        this.connectRequestTime = + new Date();
         this.sendPacket({type: 'pleaseconnect'});
     }
 
@@ -40,16 +39,13 @@ class Connection {
      * Handle when a player connects
      * @param {Object} packet Data for connection
      */
-    _connect(packet) {
+    _connect(packet) {    
         // ensure that required data is available
         if ('playerName' in packet &&
-            'commandRate' in packet) {
+            'commandRate' in packet &&
+            'commandStartTime' in packet) {
             
-            // determine when the client sent the connection request
-            const ping = ((+ new Date()) - this.connectRequestTime);
-            const commandStartTime = ping / 2 + this.connectRequestTime;
-            
-            this.player = PlayerManager.createPlayer(this, packet.playerName, packet.commandRate, commandStartTime);
+            this.player = PlayerManager.createPlayer(this, packet.playerName, packet.commandRate, packet.commandStartTime);
             console.log("Player connected: " + this.player.name);
         }
     }

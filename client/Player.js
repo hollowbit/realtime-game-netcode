@@ -17,14 +17,15 @@ export default class Player {
     }
 
     connect() {
+        const commandStartTime = this.commandManager.start();
+
+        // create connection packet
         const connectPacket = {
             type: 'connect',
             playerName: this.name,
-            commandRate: this.commandManager.commandRate
+            commandRate: this.commandManager.commandRate,
+            commandStartTime
         }
-
-        // now that we are connected, start the command manager
-        this.commandManager.start();
         return connectPacket;
     }
 

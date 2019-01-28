@@ -8,7 +8,6 @@ class CommandManager {
         this.connection = connection;
 
         this.commands = [];
-        this.commandsReceived = 0;
 
         // set update loop to apply commands
         this.updateThread = setInterval(() => { this._update(); }, 1000 / commandRate);
@@ -16,7 +15,8 @@ class CommandManager {
 
     giveCommand(command) {
         // calculate estimated creation time of command
-        command.time = this.commandStartTime + ((1000 / this.commandRate) * ++this.commandsReceived);
+        command.time = this.commandStartTime + (Math.floor(1000 / this.commandRate) * (command.id + 1));
+        console.log(`${command.time}  ${command.clientTime - command.time}`);
 
         this.commands.push(command);
     }

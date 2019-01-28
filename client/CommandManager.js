@@ -21,7 +21,13 @@ class CommandManager {
 
     // start thread to generate commands
     start() {
-        setInterval(() => { this._update(); }, 1000 / this.commandRate);
+        // start command manager in 1 second, to be sure we start it when the server knows we will
+        const commandStartTime = (+ new Date()) + 1000;
+        setTimeout(() => {
+            setInterval(() => { this._update(); }, 1000 / this.commandRate);
+        }, commandStartTime - (+ new Date()));
+
+        return commandStartTime;
     }
 
     _onKeyUp(keyCode) {
@@ -42,9 +48,10 @@ class CommandManager {
     }
 
     _update() {
+        const time = + new Date();
         const command = {
             id: this.lastId++,
-            clientTime: + new Date(),
+            clientTime: time,
             ...this.keys
         };
 

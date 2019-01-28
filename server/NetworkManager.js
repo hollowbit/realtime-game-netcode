@@ -20,7 +20,7 @@ class NetworkManager {
             try {
                 packet = JSON.parse(message);
             } catch(e) {
-                return;// jsut return if invalid json
+                return;// just return if invalid json
             }
             
             // send packet to connection
