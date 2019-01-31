@@ -2,16 +2,16 @@ import Client from './client.js';
 
 class CommandManager {
 
-    constructor(commandRunner, positionSetter, commandRate) {
+    constructor(commandRunner, positionSetter) {
         this.commandRunner = commandRunner;
         this.positionSetter = positionSetter;
-        this.commandRate = commandRate;
         
         // keep track of command id
         this.lastId = 0;
 
         // key a log of all commands
         this.commandLog = [];
+        this.commandsToSend = [];
 
         // initialize key values and listeners
         this.keys = { up: false, left: false, down: false, right: false };
@@ -21,13 +21,24 @@ class CommandManager {
 
     // start thread to generate commands
     start() {
-        // start command manager in 1 second, to be sure we start it when the server knows we will
-        const commandStartTime = (+ new Date()) + 1000;
+        // start command manager in 2 seconds, to be sure we start it when the server knows we will
+        const commandStartTime = (+ new Date()) + 2000;
         setTimeout(() => {
-            setInterval(() => { this._update(); }, 1000 / this.commandRate);
+            setInterval(() => { this._sendCommands(); }, 100); // sent command batch 10/s
         }, commandStartTime - (+ new Date()));
 
         return commandStartTime;
+    }
+
+    _sendCommands() {
+        // send commands to server
+        Client.networkManager.sendPacket({
+            type: 'command',
+            commands = this.commandsToSend
+        });
+
+        // clear commands list
+        this.commandsToSend = [];
     }
 
     _onKeyUp(keyCode) {
@@ -47,17 +58,17 @@ class CommandManager {
         }
     }
 
-    _update() {
-        const time = + new Date();
+    update(time, dt) {
         const command = {
             id: this.lastId++,
             clientTime: time,
+            dt,
             ...this.keys
         };
 
-        this.commandRunner(command);
-        Client.networkManager.sendPacket({type: 'command', command});
+        this.commandRunner(command, dt);
         this.commandLog.push(command);
+        this.commandsToSend.push(command);
     }
 
     /**

@@ -6,12 +6,11 @@ const PLAYER_SPEED = 250;
 
 export default class Player {
 
-    constructor(name, commandRate) {
+    constructor(name) {
         this.name = name;
 
         this.x = 50;
         this.y = 50;
-        this.dt = 1 / commandRate;
 
         this.commandManager = new CommandManager((command) => { this.runCommand(command); }, (snapshot) => { this.setWithSnapshot(snapshot); }, commandRate);
     }
@@ -29,21 +28,25 @@ export default class Player {
         return connectPacket;
     }
 
-    runCommand(command) {
+    update(time, dt) {
+        this.commandManager.update(time, dt);
+    }
+
+    runCommand(command, dt) {
         if (command.up) {
-            this.y -= PLAYER_SPEED * this.dt;
+            this.y -= PLAYER_SPEED * dt;
         }
 
         if (command.down) {
-            this.y += PLAYER_SPEED * this.dt;
+            this.y += PLAYER_SPEED * dt;
         }
         
         if (command.right) {
-            this.x += PLAYER_SPEED * this.dt;
+            this.x += PLAYER_SPEED * dt;
         }
         
         if (command.left) {
-            this.x -= PLAYER_SPEED * this.dt;
+            this.x -= PLAYER_SPEED * dt;
         }
 
         //TODO using world snapshots, check with collisions on other players at this timestamp

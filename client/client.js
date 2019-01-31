@@ -15,11 +15,19 @@ class Client {
         this._renderer = new Renderer(document.getElementById('render'));
 
         setInterval(() => { this.render(this._renderer); }, 1000 / FPS);
+
+        this.startTime = (+ new Date());
     }
 
     render(renderer) {
+        // calculate current time and delta time
+        const time = (+ new Date());
+        this.dt = 1 / (time - this.startTime);
+        this.startTime = time;
+
         renderer.clearScreen();
-        this.world.render(renderer);
+        this.world.render(renderer, time);
+        this.player.update(time, dt);
     }
 
 }

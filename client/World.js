@@ -22,12 +22,12 @@ class World {
         this.snapshots.push(snapshot);
     }
 
-    render(renderer) {
+    render(renderer, time) {
         //render the player
         Player.render(renderer, this.player.generateSnapshot());
 
         // calculate time to render at
-        const renderTime = (+ new Date()) - (2 * this.ping + this.renderDelay);
+        const renderTime = time - (2 * this.ping + this.renderDelay);
 
         // find snapshots to interpolate with
         var firstIndex, first, last;

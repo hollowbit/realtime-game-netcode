@@ -34,35 +34,45 @@ class PlayerManager {
         this.players.forEach(callback);
     }
 
+    update() {
+        this.forEach((player) => {
+            player.update();
+        });
+    }
+
 }
 
 class Player {
 
-    constructor(connection, name, commandRate, commandStartTime) {
+    constructor(connection, name, commandStartTime) {
         this.connection = connection;
         this.name = name;
         this.x = 50;
         this.y = 50;
-        this.dt = 1 / commandRate;
 
-        this.commandManager = new CommandManager((command) => { this.runCommand(command); } , () => { return this.generateSnapshot(); }, commandRate, commandStartTime, connection);
+        this.commandManager = new CommandManager((command, time, dt) => { this.runCommand(command, time, dt); } , () => { return this.generateSnapshot(); }, commandStartTime, connection);
     }
 
-    runCommand(command) {
+    // called 10/s
+    update() {
+        this.commandManager.update();
+    }
+
+    runCommand(command, time, dt) {
         if (command.up) {
-            this.y -= PLAYER_SPEED * this.dt;
+            this.y -= PLAYER_SPEED * dt;
         }
 
         if (command.down) {
-            this.y += PLAYER_SPEED * this.dt;
+            this.y += PLAYER_SPEED * dt;
         }
         
         if (command.right) {
-            this.x += PLAYER_SPEED * this.dt;
+            this.x += PLAYER_SPEED * dt;
         }
         
         if (command.left) {
-            this.x -= PLAYER_SPEED * this.dt;
+            this.x -= PLAYER_SPEED * dt;
         }
 
         //TODO using world snapshots, check with collisions on other players at this timestamp
