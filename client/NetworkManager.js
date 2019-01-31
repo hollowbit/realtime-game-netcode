@@ -1,5 +1,7 @@
 import Client from "./client.js";
 
+const SIMULATED_LAG = 2000;
+
 class NetworkManager {
 
     constructor(address, port) {
@@ -24,7 +26,11 @@ class NetworkManager {
         } catch (e) {
             return;// ignore invalid packets
         }
+        
+        this._handlePacket(packet);
+    }
 
+    _handlePacket(packet) {
         // handle packets based on type
         switch(packet.type) {
             case 'commandresponse':

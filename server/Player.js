@@ -13,14 +13,13 @@ class PlayerManager {
     }
 
     // create a new player and return it
-    createPlayer(connection, name, commandRate, commandStartTime) {
-        const player = new Player(connection, name, commandRate, commandStartTime);
+    createPlayer(connection, name, commandStartTime) {
+        const player = new Player(connection, name, commandStartTime);
         this.players.set(name, player);
         return player;
     }
 
     removePlayer (name) {
-        this.players.get(name).remove();
         this.players.delete(name);
     }
 
@@ -101,10 +100,6 @@ class Player {
             x: this.x,
             y: this.y
         };
-    }
-
-    remove() {
-        this.commandManager.remove();
     }
 
 }

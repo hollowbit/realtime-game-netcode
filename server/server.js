@@ -5,7 +5,8 @@ const networkManager = new NetworkManager(22122);
 const {World} = require('./World');
 const world = new World();
 
-var startTime = (+ new Date());
+const SIMULATION_RATE = 20;
 setInterval(() => {
     PlayerManager.update();
-}, 100);
+    world.update();
+}, 1000 / SIMULATION_RATE);

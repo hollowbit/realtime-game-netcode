@@ -10,7 +10,7 @@ class Client {
     constructor() {
         this.player = new Player(prompt("Please pick a name"), 60);
         this.world = new World(100, this.player);
-        this.networkManager = new NetworkManager('localhost', 22122);
+        this.networkManager = new NetworkManager('178.128.227.25', 22122);
 
         this._renderer = new Renderer(document.getElementById('render'));
 
@@ -22,12 +22,11 @@ class Client {
     render(renderer) {
         // calculate current time and delta time
         const time = (+ new Date());
-        this.dt = 1 / (time - this.startTime);
+        const dt = (time - this.startTime) / 1000;
         this.startTime = time;
 
-        renderer.clearScreen();
-        this.world.render(renderer, time);
         this.player.update(time, dt);
+        this.world.render(renderer, time);
     }
 
 }

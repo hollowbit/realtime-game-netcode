@@ -1,5 +1,7 @@
 import Client from './client.js'; 
 
+const COMMAND_RATE = 20;
+
 class CommandManager {
 
     constructor(commandRunner, positionSetter) {
@@ -13,6 +15,8 @@ class CommandManager {
         this.commandLog = [];
         this.commandsToSend = [];
 
+        this.started = false;
+
         // initialize key values and listeners
         this.keys = { up: false, left: false, down: false, right: false };
         window.onkeyup = (e) => { this._onKeyUp(e.keyCode); };
@@ -24,7 +28,8 @@ class CommandManager {
         // start command manager in 2 seconds, to be sure we start it when the server knows we will
         const commandStartTime = (+ new Date()) + 2000;
         setTimeout(() => {
-            setInterval(() => { this._sendCommands(); }, 100); // sent command batch 10/s
+            this.started = true;
+            setInterval(() => { this._sendCommands(); }, 1000 / COMMAND_RATE); // sent command batch at rate
         }, commandStartTime - (+ new Date()));
 
         return commandStartTime;
@@ -34,7 +39,7 @@ class CommandManager {
         // send commands to server
         Client.networkManager.sendPacket({
             type: 'command',
-            commands = this.commandsToSend
+            commands: this.commandsToSend
         });
 
         // clear commands list
@@ -59,6 +64,10 @@ class CommandManager {
     }
 
     update(time, dt) {
+        if (!this.started) {
+            return;
+        }
+
         const command = {
             id: this.lastId++,
             clientTime: time,
@@ -66,7 +75,7 @@ class CommandManager {
             ...this.keys
         };
 
-        this.commandRunner(command, dt);
+        this.commandRunner(command);
         this.commandLog.push(command);
         this.commandsToSend.push(command);
     }

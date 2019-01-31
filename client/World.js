@@ -17,17 +17,15 @@ class World {
 
     giveSnapshot(snapshot) {
         // set ping
-        this.ping = (+ new Date()) - snapshot.time;
+        const time = (+ new Date());
+        snapshot.time = time;
 
         this.snapshots.push(snapshot);
     }
 
     render(renderer, time) {
-        //render the player
-        Player.render(renderer, this.player.generateSnapshot());
-
         // calculate time to render at
-        const renderTime = time - (2 * this.ping + this.renderDelay);
+        const renderTime = time - this.renderDelay;
 
         // find snapshots to interpolate with
         var firstIndex, first, last;
@@ -43,8 +41,13 @@ class World {
 
         // don't render if we don't have enough snapshots to use
         if (first == undefined || last == first) {
+            console.log("Crap!");
             return;
         }
+
+        renderer.clearScreen();
+        //render the player
+        Player.render(renderer, this.player.generateSnapshot());
 
         // remove old snapshots
         this.snapshots.splice(0, firstIndex);

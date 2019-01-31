@@ -22,7 +22,18 @@ class CommandManager {
 
         // get next commands and apply them
         this.commands.forEach((command) => {
-            this.currentCommandTime += command.dt;
+            this.currentCommandTime += Math.floor(command.dt * 1000);
+
+            // the client and server have a different time that is always consistent from the initial setup.
+            // set it first time, if it changes, they are tampering with their timestamp
+            if (this.timeDifference === undefined) {
+                this.currentCommandTime += Math.floor(command.dt * 1000);
+                this.timeDifference = command.clientTime - this.currentCommandTime;
+            } else {
+                command.clientTime -= this.timeDifference;
+            }
+
+            console.log(`Command:  ${command.clientTime}     ${this.currentCommandTime}   Diff: ${command.clientTime - this.currentCommandTime}`);
 
             // run the command
             this.commandRunner(command, this.currentCommandTime, command.dt);
@@ -33,6 +44,7 @@ class CommandManager {
                 response: {
                     id: command.id,
                     time: command.time,
+                    dt: command.dt,
                     snapshot: this.snapshotGetter()
                 }
             });

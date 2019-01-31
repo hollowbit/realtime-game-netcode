@@ -22,7 +22,7 @@ class Connection {
                 break;
             case 'command':
                 if (this.hasPlayer()) {
-                    this.player.commandManager.giveCommand(packet.command);
+                    this.player.commandManager.giveCommands(packet.commands);
                 }
                 break;
         }
@@ -42,10 +42,9 @@ class Connection {
     _connect(packet) {    
         // ensure that required data is available
         if ('playerName' in packet &&
-            'commandRate' in packet &&
             'commandStartTime' in packet) {
             
-            this.player = PlayerManager.createPlayer(this, packet.playerName, packet.commandRate, packet.commandStartTime);
+            this.player = PlayerManager.createPlayer(this, packet.playerName, packet.commandStartTime);
             console.log("Player connected: " + this.player.name);
         }
     }

@@ -1,12 +1,6 @@
 const { PlayerManager } = require('./Player');
 
-const SIMULATION_RATE = 20;
-
 class World {
-
-    constructor() {
-        setInterval(() => { this.update(); }, 1000 / SIMULATION_RATE);
-    }
 
     update() {
         // If we had entities, we would update them here
