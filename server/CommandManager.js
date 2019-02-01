@@ -6,8 +6,9 @@ class CommandManager {
         this.commandStartTime = commandStartTime;
         this.connection = connection;
 
-        this.commands = [];
         this.currentCommandTime = commandStartTime;
+
+        this.commands = [];
     }
 
     giveCommands(commands) {
@@ -22,32 +23,39 @@ class CommandManager {
 
         // get next commands and apply them
         this.commands.forEach((command) => {
-            this.currentCommandTime += Math.floor(command.dt * 1000);
 
-            // the client and server have a different time that is always consistent from the initial setup.
-            // set it first time, if it changes, they are tampering with their timestamp
-            if (this.timeDifference === undefined) {
-                this.currentCommandTime += Math.floor(command.dt * 1000);
-                this.timeDifference = command.clientTime - this.currentCommandTime;
-            } else {
-                command.clientTime -= this.timeDifference;
-            }
-
-            console.log(`Command:  ${command.clientTime}     ${this.currentCommandTime}   Diff: ${command.clientTime - this.currentCommandTime}`);
-
-            // run the command
-            this.commandRunner(command, this.currentCommandTime, command.dt);
-
-            // send the response packet
-            this.connection.sendPacket({
+            // prepare response
+            const response = {
                 type: 'commandresponse',
                 response: {
                     id: command.id,
                     time: command.time,
-                    dt: command.dt,
-                    snapshot: this.snapshotGetter()
+                    dt: command.dt
                 }
-            });
+            };
+
+            // the client and server have a different time that is always consistent from the initial setup.
+            // set it first time, if it changes, they are tampering with their timestamp
+            if (this.timeDifference === undefined) {
+                const currentCommandTime = this.commandStartTime +  Math.floor(command.dt * 1000);
+                this.timeDifference = command.time - currentCommandTime;
+                this.currentCommandTime += this.timeDifference;
+            }
+            
+            // adjust time to match server time
+            command.time -= this.timeDifference;
+            
+            // if client command time is greater than current time, you can tell they are cheating
+            if (command.time > (+ new Date())) {
+                console.log("cheating detected!");
+            }
+
+            // run the command
+            this.commandRunner(command);
+
+            // get snapshot and send the response packet
+            response.snapshot = this.snapshotGetter();
+            this.connection.sendPacket(response);
         });
         this.commands = [];
     }

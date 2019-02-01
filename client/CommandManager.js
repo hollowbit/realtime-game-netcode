@@ -68,10 +68,16 @@ class CommandManager {
             return;
         }
 
+        /*if (this.first != undefined) {
+            time -= 10000;
+        }*/
+
+        this.first = true;
+
         const command = {
             id: this.lastId++,
-            clientTime: time,
-            dt,
+            time,
+            dt: (dt),
             ...this.keys
         };
 
